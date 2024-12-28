@@ -1,22 +1,20 @@
 # check https://nfpm.goreleaser.com/configuration for detailed usage
-name: "zig"
+name: "minisign"
 arch: "amd64"
 platform: "linux"
 version: "${VERSION}"
 epoch: 1
 section: default
 provides:
-  - pdfcpu
+  - minisign
 maintainer: "Andrea Funtò <dihedron.dev@gmail.com>"
 description: |
-  Zig is a general-purpose programming language and toolchain
-  for maintaining robust, optimal and reusable software.
-vendor: "zig"
-homepage: "https://ziglang.org/"
-license: "https://github.com/ziglang/zig/blob/master/LICENSE"
+  Minisign is a dead simple tool to sign files and verify signatures.
+vendor: "Frank Denis (jedisct1)"
+homepage: "https://jedisct1.github.io/minisign/"
+license: "https://github.com/jedisct1/minisign/blob/master/LICENSE"
 contents:
-  - src: zig/
-    dst: /usr/local/zig/
-    type: tree
+  - src: minisign-linux/x86_64/minisign
+    dst: /usr/local/bin/minisign
 rpm:
   packager: "Andrea Funtò <dihedron.dev@gmail.com>"

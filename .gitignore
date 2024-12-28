@@ -1,6 +1,7 @@
 *.tar.xz
+*.tar.gz
 *.deb
 *.rpm
 *.apk
-zig*/
+minisign-linux/
 *.minisig

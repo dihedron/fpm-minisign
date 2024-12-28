@@ -1,73 +1,76 @@
-VERSION=$(shell curl -sI https://github.com/ziglang/zig/releases/latest | grep -i Location | cut -d" " -f2 | grep -Eo '[0-9]+\.[0-9]+\.[0-9]+')
-PACKAGE_DOWNLOAD_URL=https://ziglang.org/download/$(VERSION)/zig-linux-x86_64-$(VERSION).tar.xz
-SIGNATURE_DOWNLOAD_URL=https://ziglang.org/download/$(VERSION)/zig-linux-x86_64-$(VERSION).tar.xz.minisig
-SIGNATURE=RWSGOq2NVecA2UPNdBUZykf1CCb147pkmdtYxgb3Ti+JO/wCYvhbAb/U
+VERSION=$(shell curl -sI https://github.com/jedisct1/minisign/releases/latest | grep -i Location | cut -d" " -f2 | grep -Eo '[0-9]+\.[0-9]+')
+PACKAGE_DOWNLOAD_URL=https://github.com/jedisct1/minisign/releases/download/$(VERSION)/minisign-$(VERSION)-linux.tar.gz
+SIGNATURE_DOWNLOAD_URL=https://github.com/jedisct1/minisign/releases/download/$(VERSION)/minisign-$(VERSION)-linux.tar.gz.minisig
+SIGNATURE=RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3
 
-zig_$(VERSION)_Linux_x86_64.tar.xz:
+
+
+minisign-$(VERSION)-linux.tar.gz:
 	@wget $(PACKAGE_DOWNLOAD_URL)
 	@wget $(SIGNATURE_DOWNLOAD_URL)
 
 .phony: latest
 latest:
-	@echo "Latest zig version is $(VERSION)"
+	@echo "Latest minisign version is $(VERSION)"
 
 .phony: verify
 verify:
-	@minisign -Vm zig-linux-x86_64-$(VERSION).tar.xz -P $(SIGNATURE)
+ifeq ($(shell which minisign),)
+	@echo "Please install minisign to perform signature verification"
+else
+	@minisign -Vm minisign-$(VERSION)-linux.tar.gz -P $(SIGNATURE)
+endif
 
 .phony: setup-tools
 setup-tools:
 	@go install github.com/goreleaser/nfpm/v2/cmd/nfpm@latest
 
 .phony: deb
-deb: zig_$(VERSION)_Linux_x86_64.tar.xz verify
+deb: minisign-$(VERSION)-linux.tar.gz verify
 ifeq ($(GITLAB_CI),)
 ifeq ($(shell which nfpm),)
 	@echo "Need to install nFPM first..."
 	@go install github.com/goreleaser/nfpm/v2/cmd/nfpm@latest
 endif
 endif
-	@rm -rf zig-linux-x86_64-$(VERSION).tar.xz/ zig/
-	@tar xvf zig-linux-x86_64-$(VERSION).tar.xz 2>&1 > /dev/null
-	@mv zig-linux-x86_64-$(VERSION)/ zig/
-	@echo -n "Create zig $(VERSION) "
+	@rm -rf minisign-linux/
+	@tar xvf minisign-$(VERSION)-linux.tar.gz 2>&1 > /dev/null
+	@echo -n "Create minisign $(VERSION) "
 	@VERSION=$(VERSION) nfpm package --packager deb --target .
-	@rm -rf zig-linux-x86_64-$(VERSION).tar.xz/ zig/ *.minisig
+	@rm -rf minisign-linux/
 
 .phony: rpm
-rpm: zig_$(VERSION)_Linux_x86_64.tar.xz verify
+rpm: minisign-$(VERSION)-linux.tar.gz verify
 ifeq ($(GITLAB_CI),)
 ifeq ($(shell which nfpm),)
 	@echo "Need to install nFPM first..."
 	@go install github.com/goreleaser/nfpm/v2/cmd/nfpm@latest
 endif
 endif
-	@rm -rf zig-linux-x86_64-$(VERSION).tar.xz/ zig/
-	@tar xvf zig-linux-x86_64-$(VERSION).tar.xz 2>&1 > /dev/null
-	@mv zig-linux-x86_64-$(VERSION)/ zig/
-	@echo -n "Create zig $(VERSION) "
+	@rm -rf minisign-linux/
+	@tar xvf minisign-$(VERSION)-linux.tar.gz 2>&1 > /dev/null
+	@echo -n "Create minisign $(VERSION) "
 	@VERSION=$(VERSION) nfpm package --packager rpm --target .
-	@rm -rf zig-linux-x86_64-$(VERSION).tar.xz/ zig/ *.minisig
+	@rm -rf minisign-linux/
 
 
 # TODO: run a cleanup task removing go/ only once:
 # see https://gist.github.com/APTy/9a9eb218f68bc0b4beb133b89c9def14
 
 .phony: apk
-apk: zig_$(VERSION)_Linux_x86_64.tar.xz verify
+apk: minisign-$(VERSION)-linux.tar.gz verify
 ifeq ($(GITLAB_CI),)
 ifeq ($(shell which nfpm),)
 	@echo "Need to install nFPM first..."
 	@go install github.com/goreleaser/nfpm/v2/cmd/nfpm@latest
 endif
 endif
-	@rm -rf zig-linux-x86_64-$(VERSION).tar.xz/ zig/
-	@tar xvf zig-linux-x86_64-$(VERSION).tar.xz 2>&1 > /dev/null
-	@mv zig-linux-x86_64-$(VERSION)/ zig/
-	@echo -n "Create zig $(VERSION) "
+	@rm -rf minisign-linux/
+	@tar xvf minisign-$(VERSION)-linux.tar.gz 2>&1 > /dev/null
+	@echo -n "Create minisign $(VERSION) "
 	@VERSION=$(VERSION) nfpm package --packager apk --target .
-	@rm -rf zig-linux-x86_64-$(VERSION).tar.xz/ zig/ *.minisig
+	@rm -rf minisign-linux/
 
 .phony: clean
 clean:
-	@rm -rf *.deb *.rpm *.apk *.tar.xz* zig-linux-x86_64-*.tar.xz/ zig/ *.minisig
+	@rm -rf *.deb *.rpm *.apk *.tar.gz* minisign-linux/ *.minisig

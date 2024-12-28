@@ -1,4 +1,4 @@
-# fpm-zig
+# fpm-minisign
 
 A simple Makefile to create `.deb` and `.rpm` packages of the minisign signature verification tool.
 

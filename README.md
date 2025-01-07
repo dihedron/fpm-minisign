@@ -1,6 +1,6 @@
 # fpm-minisign
 
-A simple Makefile to create `.deb` and `.rpm` packages of the minisign signature verification tool.
+A simple Makefile to create `.deb` and `.rpm` packages of the [minisign](https://jedisct1.github.io/minisign/) signature verification tool.
 
 ## Building a [deb|rpm] package
 
